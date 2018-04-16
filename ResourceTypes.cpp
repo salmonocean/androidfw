@@ -42,6 +42,8 @@
 #include <utils/String16.h>
 #include <utils/String8.h>
 
+#include <../../tools/aapt/ResourceTable.h>
+
 #ifdef __ANDROID__
 #include <binder/TextOutput.h>
 #endif
@@ -5466,6 +5468,22 @@ bool ResTable::stringToValue(Res_value* outValue, String16* outString,
                 for (i=0; i<cnt; i++, bagi++) {
                     if (!Res_INTERNALID(bagi->map.name.ident)) {
                         //printf("Trying attr #%08x\n", bagi->map.name.ident);
+
+                        // [+EUI]
+                        AccessorCookie* ac = (AccessorCookie*)accessorCookie;
+                        bool ignore = ac != NULL &&
+                            ac->attr.compare((String8)"configChanges") == 0 &&
+                            strzcmp16(start, pos-start, u"letvTheme", strlen("letvTheme")) == 0;
+
+                        if (ignore) {
+                            ac->sourcePos.warning("Warning: String types not allowed (at '%s' with value '%s').\n",
+                                    ac->attr.string(), ac->value.string());
+
+                            outValue->data |= 0x80000000;
+                            break;
+                        }
+                        // [+EUI]
+
                         if (getResourceName(bagi->map.name.ident, false, &rname)) {
                             #if 0
                             printf("Matching %s against %s (0x%08x)\n",

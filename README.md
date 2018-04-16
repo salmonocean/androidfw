@@ -1,2 +1,2 @@
-# androidfw
-aapt is modified to avoid compile error
+aapt is modified to avoid compile error.
+'letvTheme' in 'configChanges' is only used in EUI.
